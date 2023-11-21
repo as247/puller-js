@@ -1,0 +1,51 @@
+{
+    "name": "puller-js",
+    "version": "1.0.0",
+    "description": "Puller-js is a javascript library for ajax long polling",
+    "keywords": [
+        "laravel",
+        "puller"
+    ],
+    "homepage": "https://github.com/as247/puller-js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/as247/puller-js"
+    },
+    "license": "MIT",
+    "author": {
+        "name": "As247"
+    },
+    "main": "dist/puller.common.js",
+    "module": "dist/puller.js",
+    "types": "dist/puller.d.ts",
+    "scripts": {
+        "build": "npm run compile && npm run declarations",
+        "compile": "npx rollup -c",
+        "declarations": "npx tsc --emitDeclarationOnly",
+        "prepublish": "npm run build",
+        "release": "git push --follow-tags && npm publish"
+    },
+    "devDependencies": {
+        "@babel/plugin-proposal-decorators": "^7.17.2",
+        "@babel/plugin-proposal-export-namespace-from": "^7.16.7",
+        "@babel/plugin-proposal-function-sent": "^7.16.7",
+        "@babel/plugin-proposal-numeric-separator": "^7.16.7",
+        "@babel/plugin-proposal-throw-expressions": "^7.16.7",
+        "@babel/plugin-transform-object-assign": "^7.16.7",
+        "@babel/preset-env": "^7.16.11",
+        "@rollup/plugin-babel": "^5.3.1",
+        "@types/node": "^18.11.9",
+        "rollup": "^2.70.1",
+        "rollup-plugin-typescript2": "^0.31.2",
+        "standard-version": "^9.3.2",
+        "tslib": "^2.3.1",
+        "typescript": "^4.6.2",
+        "laravel-echo": "^1.15.3"
+    },
+    "engines": {
+        "node": ">=10"
+    },
+    "dependencies": {
+
+    }
+}
