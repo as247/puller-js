@@ -87,8 +87,8 @@ export default class Channel {
                 client.post(this.options.auth.endpoint, authData, {
                     headers: this.options.auth.headers,
                 }).then((response) => {
-                    if (response.token) {
-                        this.token = response.token;
+                    if (response.json && response.json.token) {
+                        this.token = response.json.token;
                         resolve(response);
                     }
                 }).catch((error) => {

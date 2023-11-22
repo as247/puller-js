@@ -46,7 +46,7 @@ class Client {
                     });
 
                 }).catch((error) => {
-                    reject({error});
+                    reject({status:0,error});
                 });
             } else {
                 let request = new XMLHttpRequest();
@@ -57,7 +57,7 @@ class Client {
                 request.onload = () => {
                     let json = this.parseJson(request.responseText);
                     if (request.status >= 200 && request.status < 400) {
-                        resolve(json);
+                        resolve({status:request.status,json});
                     } else {
                         reject({status: request.status, json});
                     }
@@ -72,7 +72,7 @@ class Client {
                 try {
                     request.send(options.data);
                 } catch (error) {
-                    reject({error});
+                    reject({status:0,error});
                 }
             }
         });
