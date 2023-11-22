@@ -83,16 +83,21 @@ export default class Channel {
             channel_name: this.name,
         });
         return new Promise((resolve, reject) => {
-            client.post(this.options.auth.endpoint, authData,{
-                headers: this.options.auth.headers,
-            }).then((response) => {
-                if (response.token) {
-                    this.token = response.token;
-                    resolve(response);
-                }
-            }).catch((error) => {
-                reject(error);
-            })
+            if(this.isPrivate()) {
+                client.post(this.options.auth.endpoint, authData, {
+                    headers: this.options.auth.headers,
+                }).then((response) => {
+                    if (response.token) {
+                        this.token = response.token;
+                        resolve(response);
+                    }
+                }).catch((error) => {
+                    reject(error);
+                })
+            }else{
+                this.token = null;
+                resolve({});
+            }
         });
     }
     isPrivate(){
@@ -112,14 +117,15 @@ export default class Channel {
             channel: this.name,
             token:this.token,
         }).then((response) => {
-            if(response.token){
-                this.token = response.token;
+            let json = response.json;
+            if(json && json.token){
+                this.token = json.token;
                 if(!this.isRunning){
                     this.isRunning = true;
                     this.callStarted();
                 }
-                if (response.messages) {
-                    response.messages.forEach((message) => {
+                if (json.messages) {
+                    json.messages.forEach((message) => {
                         if (this.events[message[0]]) {
                             this.events[message[0]](message[1]);
                         }
@@ -132,7 +138,7 @@ export default class Channel {
             }else{
                 this.callErrors(response);
                 setTimeout(() => {
-                        this.loop();
+                        this.retry(response);
                     },
                     Math.max(0,(this.options.error_delay || 10000) - (new Date().getTime() - startTimestamp))
                 );
@@ -140,10 +146,22 @@ export default class Channel {
         }  ).catch((error) => {
             this.callErrors(error);
             setTimeout(() => {
-                this.loop();
+                this.retry(error);
             }, Math.max(0,(this.options.error_delay || 10000) - (new Date().getTime() - startTimestamp)));
 
         })
+    }
+    private retry(response){
+        if(response.status===401){//Unauthorized
+            this.auth().then((response) => {
+                this.loop();
+            }).catch((error) => {
+                this.callErrors(error);
+                setTimeout(() => {
+                    this.retry(error);
+                }, Math.max(0,(this.options.error_delay || 10000)));
+            });
+        }
     }
     callErrors(error: any){
         this.onErrors.forEach((callback) => {

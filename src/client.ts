@@ -37,16 +37,16 @@ class Client {
                     response.text().then((text) => {
                         let json = this.parseJson(text);
                         if(response.ok) {
-                            resolve(json);
+                            resolve({status:response.status,json});
                         }else{
-                            reject(json);
+                            reject({status:response.status,json});
                         }
                     }).catch((error) => {
-                        reject(error);
+                        reject({status:response.status,error});
                     });
 
                 }).catch((error) => {
-                    reject(error);
+                    reject({error});
                 });
             } else {
                 let request = new XMLHttpRequest();
@@ -59,17 +59,20 @@ class Client {
                     if (request.status >= 200 && request.status < 400) {
                         resolve(json);
                     } else {
-                        reject(json);
+                        reject({status: request.status, json});
                     }
                 };
                 request.onerror = () => {
                     let json = this.parseJson(request.responseText);
-                    reject(json);
+                    reject({
+                        status: request.status,
+                        json,
+                    });
                 };
                 try {
                     request.send(options.data);
-                } catch (e) {
-                    reject(e);
+                } catch (error) {
+                    reject({error});
                 }
             }
         });

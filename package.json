@@ -1,6 +1,6 @@
 {
     "name": "puller-js",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Puller-js is a javascript library for ajax long polling",
     "keywords": [
         "laravel",
