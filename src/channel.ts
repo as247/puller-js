@@ -63,9 +63,9 @@ export default class Channel {
         if (!this.isStarted) {
             this.isStopped = false;
             if(this.isPrivate()){
-                this.auth().then((response) => {
+                this.auth().then(() => {
                     this.loop();
-                }).catch((error) => {
+                }).catch(() => {
 
                 });
             }else {
@@ -137,31 +137,30 @@ export default class Channel {
                 this.loop();
             }else{
                 this.callErrors(response);
-                setTimeout(() => {
-                        this.retry(response);
-                    },
-                    Math.max(0,(this.options.error_delay || 10000) - (new Date().getTime() - startTimestamp))
-                );
+                this.retry(response, Math.max(0,(this.options.error_delay || 10000) - (new Date().getTime() - startTimestamp)));
             }
         }  ).catch((error) => {
             this.callErrors(error);
-            setTimeout(() => {
-                this.retry(error);
-            }, Math.max(0,(this.options.error_delay || 10000) - (new Date().getTime() - startTimestamp)));
+            this.retry(error, Math.max(0,(this.options.error_delay || 10000) - (new Date().getTime() - startTimestamp)));
 
         })
     }
-    private retry(response){
-        if(response.status===401){//Unauthorized
-            this.auth().then((response) => {
+    private retry(response, delay){
+        setTimeout(() => {
+            if(response.status===401){//Unauthorized
+                this.auth().then(() => {
+                    this.loop();
+                }).catch((error) => {
+                    this.callErrors(error);
+                    setTimeout(() => {
+                        this.retry(error, (this.options.error_delay || 10000));
+                    }, (this.options.error_delay || 10000));
+                });
+            }else{
                 this.loop();
-            }).catch((error) => {
-                this.callErrors(error);
-                setTimeout(() => {
-                    this.retry(error);
-                }, Math.max(0,(this.options.error_delay || 10000)));
-            });
-        }
+            }
+        }, delay);
+
     }
     callErrors(error: any){
         this.onErrors.forEach((callback) => {
